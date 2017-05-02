@@ -4,7 +4,8 @@ var express = require("express"),
     p = require("path");
 
 // path to the mbtiles; default is the server.js directory
-var tilesDir = __dirname;
+var tilesDir = p.join(__dirname, 'data');
+var port = 8084;
 
 // Set return header
 function getContentType(t) {
@@ -15,7 +16,7 @@ function getContentType(t) {
   header["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept";
 
   // Cache
-  header["Cache-Control"] = "public, max-age=604800";
+  header["Cache-Control"] = "no-cache, no-store, must-revalidate";
 
   // request specific headers
   if (t === "png") {
@@ -28,21 +29,43 @@ function getContentType(t) {
     header["Content-Type"] = "application/x-protobuf";
     header["Content-Encoding"] = "gzip";
   }
+  if (t === "json") {
+    header["Content-Type"] = "application/json";
+  }
 
   return header;
 }
+
+app.get('/:s/:d.json', function(req, res) {
+  new MBTiles(p.join(tilesDir, req.params.s + '.mbtiles'), function(err, mbtiles) {
+    mbtiles.getInfo(function(err, info){
+      if(err) {
+        console.log("getInfo called on", p.join(tilesDir, req.params.s + '.mbtiles'), "resulted in error:", err);
+      } else {
+        info.tiles = ["http://localhost:" + port + "/" + req.params.s + "/{z}/{x}/{y}.pbf"]
+        res.set(getContentType(req.params.t));
+        res.send(info);
+      }
+    });
+  });
+});
 
 // tile cannon
 app.get('/:s/:z/:x/:y.:t', function(req, res) {
   new MBTiles(p.join(tilesDir, req.params.s + '.mbtiles'), function(err, mbtiles) {
     mbtiles.getTile(req.params.z, req.params.x, req.params.y, function(err, tile, headers) {
       if (err) {
-        let header = {};
-        header["Access-Control-Allow-Origin"] = "*";
-        header["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept";
-        header["Content-Type"] = "text/plain";
-        res.set(header);
-        res.status(404).send('Tile rendering error: ' + err + '\n');
+        if( false ) { //err == 'Error: Tile does not exist') {
+          res.set(getContentType(req.params.t));
+          res.send('');
+        } else {
+          var header = {};
+          header["Access-Control-Allow-Origin"] = "*";
+          header["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept";
+          header["Content-Type"] = "text/plain";
+          res.set(header);
+          res.status(404).send('Tile rendering error: ' + err + '\n');
+        }
       } else {
         res.set(getContentType(req.params.t));
         res.send(tile);
@@ -53,5 +76,5 @@ app.get('/:s/:z/:x/:y.:t', function(req, res) {
 });
 
 // start up the server
-console.log('Listening on port: ' + 3000);
-app.listen(3000);
+console.log('Listening on port: ' + port);
+app.listen(port);

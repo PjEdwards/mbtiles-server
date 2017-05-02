@@ -4,11 +4,12 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "express": "^4.15.2",
-    "mbtiles": "^0.9.0"
+    "express": "*",
+    "mbtiles": "*"
   },
   "devDependencies": {},
   "scripts": {
+    "start": "node index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": "https://github.com/tobinbradley/mbtiles-server",
