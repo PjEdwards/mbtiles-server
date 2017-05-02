@@ -37,12 +37,13 @@ function getContentType(t) {
 }
 
 app.get('/:s/:d.json', function(req, res) {
+  console.log(req)
   new MBTiles(p.join(tilesDir, req.params.s + '.mbtiles'), function(err, mbtiles) {
     mbtiles.getInfo(function(err, info){
       if(err) {
         console.log("getInfo called on", p.join(tilesDir, req.params.s + '.mbtiles'), "resulted in error:", err);
       } else {
-        info.tiles = ["http://localhost:" + port + "/" + req.params.s + "/{z}/{x}/{y}.pbf"]
+        info.tiles = [req.protocol + "//" + req.hostname + ":" + port + "/" + req.params.s + "/{z}/{x}/{y}.pbf"]
         res.set(getContentType(req.params.t));
         res.send(info);
       }
