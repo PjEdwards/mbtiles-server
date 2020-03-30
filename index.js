@@ -1,6 +1,6 @@
 var express = require("express"),
     app = express(),
-    MBTiles = require('mbtiles'),
+    MBTiles = require('@mapbox/mbtiles'),
     p = require("path");
 
 // path to the mbtiles; default is the server.js directory
