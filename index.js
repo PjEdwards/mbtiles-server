@@ -12,8 +12,8 @@ function getContentType(t) {
   var header = {};
 
   // CORS
-  header["Access-Control-Allow-Origin"] = "*";
-  header["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept";
+  // header["Access-Control-Allow-Origin"] = "*";
+  // header["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept";
 
   // Cache
   header["Cache-Control"] = "no-cache, no-store, must-revalidate";
@@ -42,7 +42,7 @@ app.get('/:s/:d.json', function(req, res) {
       if(err) {
         console.log("getInfo called on", p.join(tilesDir, req.params.s + '.mbtiles'), "resulted in error:", err);
       } else {
-        info.tiles = [req.protocol + "://" + req.hostname + ":" + port + "/" + req.params.s + "/{z}/{x}/{y}.pbf"]
+        info.tiles = [req.protocol + "://" + req.hostname + "/vector/" + req.params.s + "/{z}/{x}/{y}.pbf"]
         res.set(getContentType(req.params.t));
         res.send(info);
       }
@@ -60,8 +60,8 @@ app.get('/:s/:z/:x/:y.:t', function(req, res) {
           res.send('');
         } else {
           var header = {};
-          header["Access-Control-Allow-Origin"] = "*";
-          header["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept";
+          // header["Access-Control-Allow-Origin"] = "*";
+          // header["Access-Control-Allow-Headers"] = "Origin, X-Requested-With, Content-Type, Accept";
           header["Content-Type"] = "text/plain";
           res.set(header);
           res.status(404).send('Tile rendering error: ' + err + '\n');
