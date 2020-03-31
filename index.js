@@ -1,11 +1,13 @@
 var express = require("express"),
     app = express(),
     MBTiles = require('@mapbox/mbtiles'),
-    p = require("path");
+    p = require("path"),
+    config = require('config');
 
 // path to the mbtiles; default is the server.js directory
 var tilesDir = p.join(__dirname, 'data');
-var port = 8084;
+var port = config.port || 8084;
+var protocol = config.protocol;
 
 // Set return header
 function getContentType(t) {
@@ -37,12 +39,16 @@ function getContentType(t) {
 }
 
 app.get('/:s/:d.json', function(req, res) {
+  if(!protocol) {
+    protocol = req.protocol;
+  }
+
   new MBTiles(p.join(tilesDir, req.params.s + '.mbtiles'), function(err, mbtiles) {
     mbtiles.getInfo(function(err, info){
       if(err) {
         console.log("getInfo called on", p.join(tilesDir, req.params.s + '.mbtiles'), "resulted in error:", err);
       } else {
-        info.tiles = [req.protocol + "://" + req.hostname + "/vector/" + req.params.s + "/{z}/{x}/{y}.pbf"]
+        info.tiles = [protocol + "://" + req.hostname + "/vector/" + req.params.s + "/{z}/{x}/{y}.pbf"]
         res.set(getContentType(req.params.t));
         res.send(info);
       }
