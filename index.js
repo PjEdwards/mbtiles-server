@@ -49,6 +49,7 @@ app.get('/:s/:d.json', function(req, res) {
         console.log("getInfo called on", p.join(tilesDir, req.params.s + '.mbtiles'), "resulted in error:", err);
       } else {
         info.tiles = [protocol + "://" + req.hostname + "/vector/" + req.params.s + "/{z}/{x}/{y}.pbf"]
+        // info.tiles = [protocol + "://" + req.hostname + `:${port}/` + req.params.s + "/{z}/{x}/{y}.pbf"]
         res.set(getContentType(req.params.t));
         res.send(info);
       }
@@ -61,7 +62,7 @@ app.get('/:s/:z/:x/:y.:t', function(req, res) {
   new MBTiles(p.join(tilesDir, req.params.s + '.mbtiles'), function(err, mbtiles) {
     mbtiles.getTile(req.params.z, req.params.x, req.params.y, function(err, tile, headers) {
       if (err) {
-        if( false ) { //err == 'Error: Tile does not exist') {
+        if( err == 'Error: Tile does not exist') {
           res.set(getContentType(req.params.t));
           res.send('');
         } else {
